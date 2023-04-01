@@ -16,6 +16,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /**
  * The Class MyBatisApplication.
  */
+
 @SpringBootApplication
 public class MyBatisApplication {
 
