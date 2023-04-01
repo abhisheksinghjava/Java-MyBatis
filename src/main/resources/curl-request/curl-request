@@ -1,0 +1,2 @@
+curl --location 'http://localhost:8080/demo-service/user/abhishek.singh' \
+--header 'Content-Type: application/json'
