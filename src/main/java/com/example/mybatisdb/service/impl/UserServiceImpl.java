@@ -50,10 +50,24 @@ public class UserServiceImpl implements UserService {
 	 */
 	@Override
 	public UserDetailsDto getUserDetailByUsername(final String userName) throws UserException {
-		LOGGER.info("User Name Is - {}", userName);
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("Entering into method UserServiceImpl.getUserDetailByUsername");
+		}
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug(new StringBuilder("Input parameter: userName: ").append(userName).toString());
+		}
 		UserDetailsDto userDetailsDto = userMapper.getUserDetailsByUserName(userName);
+
 		if (Objects.isNull(userDetailsDto)) {
+			LOGGER.info("userDetailsDto is null.");
 			throw new UserException(Constants.ERR0002_MSG, Constants.ERR0002, HttpStatus.NO_CONTENT);
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug(new StringBuilder("Output parameter: userDetailsDto: ").append(userDetailsDto).toString());
+		}
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("Exiting from method UserServiceImpl.getUserDetailByUsername");
 		}
 		return userDetailsDto;
 	}
