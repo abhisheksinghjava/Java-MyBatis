@@ -8,7 +8,7 @@
  * 
  * ABC INDIA PVT.LTD. CONFIDENTIAL AND PROPRIETARY
  */
-package com.example.mybatisdb.controller;
+package com.example.mybatisdb.service.impl;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
@@ -20,30 +20,28 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import com.example.mybatisdb.UnitTest;
-import com.example.mybatisdb.common.util.DemoResponse;
-import com.example.mybatisdb.service.impl.UserServiceImpl;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import com.example.mybatisdb.dto.UserDetailsDto;
+import com.example.mybatisdb.mapper.UserDetailsCustomMapper;
+import com.example.mybatisdb.exception.UserException;
 
 /**
- * The Class UserControllerTest.
+ * The Class UserServiceImplTest.
  */
 @Category(UnitTest.class)
-public class UserControllerTest {
+public class UserServiceImplTest {
 	
-	/** The user controller. */
+	/** The user service impl. */
 	@InjectMocks
-    UserController userController;
+	UserServiceImpl userServiceImpl;
     
-    /** The service. */
+    /** The maper. */
     @Mock
-    UserServiceImpl service;
+    UserDetailsCustomMapper maper;
     
     /**
      * Setup.
@@ -55,21 +53,35 @@ public class UserControllerTest {
     }
 
     /**
-     * Gets the category analysis by delivery test.
+     * Gets the user details by user name success test.
      *
-     * @return the category analysis by delivery test
+     * @return the user details by user name success test
      * @throws Exception the exception
      */
     @Test
-    public void getCategoryAnalysisByDelivery_Test() throws Exception  {
+    public void getUserDetailsByUserName_Success_Test() throws Exception  {
     	UserDetailsDto userDetailsDto = new UserDetailsDto();
     	userDetailsDto.setUserId(123);
     	userDetailsDto.setUserName("abc");
-        Mockito.when(service
-                .getUserDetailByUsername(Mockito.anyString())).thenReturn(userDetailsDto);
-        ResponseEntity<DemoResponse> actual = userController.getUserDetailByUsername( "abc");
-        assertEquals(HttpStatus.OK, actual.getStatusCode());
+        Mockito.when(maper
+                .getUserDetailsByUserName(Mockito.anyString())).thenReturn(userDetailsDto);
+        UserDetailsDto actual = userServiceImpl.getUserDetailByUsername( "abc");
+        assertEquals("abc", actual.getUserName());
     }
-
+    
+    /**
+     * Gets the user details by user name failure test.
+     *
+     * @return the user details by user name failure test
+     * @throws Exception the exception
+     */
+    @Test(expected = UserException.class)
+    public void getUserDetailsByUserName_Failure_Test() throws Exception  {
+    	
+        Mockito.when(maper
+                .getUserDetailsByUserName(Mockito.anyString())).thenReturn(null);
+        userServiceImpl.getUserDetailByUsername( "abc");
+    }
+    
 
 }
