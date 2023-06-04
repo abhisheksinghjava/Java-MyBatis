@@ -1,2 +1,5 @@
 curl --location 'http://localhost:8080/demo-service/user/abhishek.singh' \
 --header 'Content-Type: application/json'
+
+
+curl --location --request POST 'http://localhost:8080/demo-service/call-db-function'

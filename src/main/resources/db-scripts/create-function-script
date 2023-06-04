@@ -1,0 +1,110 @@
+CREATE SEQUENCE public.execution_id_seq
+	NO MINVALUE
+	NO MAXVALUE;
+
+	
+--------------------------------------------
+
+CREATE OR REPLACE FUNCTION public.proc_log_errors(executionid numeric, batchid character varying, description character varying, errorcode character varying, logtype character varying)
+ RETURNS void
+ LANGUAGE plpgsql
+AS $function$
+declare
+	existingExecutionId numeric;
+	v_state   TEXT;
+	v_msg     TEXT;
+	v_detail  TEXT;
+	v_hint    TEXT;
+	v_context TEXT;
+begin
+
+	if executionId is not null then
+		insert into
+		log_errors(execution_id, batch_id ,description, error_code, log_type,log_time)
+		VALUES (executionId,batchId,description, errorCode,logType,clock_timestamp());
+	else
+		raise notice 'Added for unknown execution id!';
+		insert into
+		log_errors(execution_id, batch_id ,description, error_code, log_type,log_time)
+		VALUES (0,batchId,description, errorCode,logType,clock_timestamp());
+
+	end if;
+
+	EXCEPTION
+	WHEN OTHERS THEN
+	GET STACKED DIAGNOSTICS
+            v_state   = RETURNED_SQLSTATE,
+            v_msg     = MESSAGE_TEXT,
+            v_detail  = PG_EXCEPTION_DETAIL,
+            v_hint    = PG_EXCEPTION_HINT,
+            v_context = PG_EXCEPTION_CONTEXT;
+        RAISE notice E'Got EXCEPTION:
+            state  : %
+            message: %
+            detail : %
+            hint   : %
+            context: %', v_state, v_msg, v_detail, v_hint, v_context;
+		
+		INSERT INTO
+		log_errors(execution_id, batch_id ,description, error_code, log_type,log_time)
+		VALUES (executionId,batchId,substring(v_msg for 200), v_state, 'Error',current_timestamp);
+	
+end;
+$function$
+;
+
+--------------------------------------------------
+
+CREATE TABLE public.log_errors (
+	execution_id numeric(10) NOT NULL,
+	log_time timestamp NOT NULL,
+	error_code varchar(10) NULL,
+	log_type varchar(10) NULL,
+	description varchar(250) NULL,
+	batch_id varchar(30) NULL
+);
+
+---------------------------------------------------
+
+CREATE OR REPLACE FUNCTION public.fun_test(batchid character varying, username character varying)
+ RETURNS character varying
+ LANGUAGE plpgsql
+AS $function$
+declare
+
+    v_SQLERRM varchar;
+	v_SQLSTATE varchar;
+	v_execution_id numeric(10);	
+	v_batchId varchar := batchId;
+    v_username varchar := username;
+   
+begin
+   select nextval('execution_id_seq') into v_execution_id;
+   raise notice 'Batch execution id - %', v_execution_id;
+  
+   raise notice 'v_batchId - %, v_username - %',v_batchId,v_username;
+  
+   return 'true';
+     
+   exception
+		when others then
+		raise notice '%', SQLERRM ;
+		raise notice  '%',SQLSTATE ;
+
+		v_SQLERRM := SQLERRM;
+		v_SQLSTATE := SQLSTATE;
+
+		PERFORM PROC_LOG_ERRORS(v_execution_id,v_batchId, 'Error in fun_test ', v_SQLSTATE, 'E');
+		PERFORM PROC_LOG_ERRORS(v_execution_id,v_batchId, substring(v_SQLERRM for 200), v_SQLSTATE, 'E');
+    
+	    return 'false';   
+           
+end;
+$function$
+;
+
+---------------calling--------------------
+
+select fun_test('123', 'abhishek singh');
+
+------------------------------------------	

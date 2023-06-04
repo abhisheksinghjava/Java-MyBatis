@@ -18,7 +18,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.example.demo.common.util.Constants;
+import com.example.mybatisdb.common.util.Constants;
 
 import org.slf4j.Logger;
 

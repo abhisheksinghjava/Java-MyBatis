@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.example.mybatisdb.mapper.MybatisFunctionCallCustomMapper">
+	
+	
+	<select id="callDbFunction" parameterType="map"
+		statementType="CALLABLE" resultType="string">
+		{
+		call fun_test(
+		#{batchid,mode=IN,jdbcType=VARCHAR},#{username,mode=IN,jdbcType=VARCHAR})
+		}
+	</select>
+
+
+</mapper>
